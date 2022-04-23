@@ -1,0 +1,20 @@
+version: '3'
+
+networks:
+  canwecoop:
+    external: false
+services:
+  cwc-database:
+    container_name: cwc-database
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    restart: unless-stopped
+    networks:
+      - canwecoop
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 3020:5432
