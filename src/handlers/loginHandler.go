@@ -3,12 +3,14 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/solovev/steam_go"
 	"github.com/xdarkyne/steamgo/config"
 	"github.com/xdarkyne/steamgo/db"
 	"github.com/xdarkyne/steamgo/db/models"
+	"github.com/xdarkyne/steamgo/steam"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,16 +65,36 @@ func login(w http.ResponseWriter, r *http.Request) {
 				ID:           steamUser.SteamId,
 				DisplayName:  steamUser.PersonaName,
 				AvatarUrl:    steamUser.AvatarFull,
+				ProfileUrl:   steamUser.ProfileUrl,
 				IsTester:     false,
 				IsAdmin:      false,
+				Friends:      []*models.User{},
+				Games:        []models.Game{},
 				CreatedAt:    time.Now(),
 				LastLoggedIn: time.Now(),
 			}
 			db.ORM.Create(&user)
 		}
-		result = db.ORM.Model(&models.User{}).Where("id = ?", user.ID).Update("LastLoggedIn", time.Now())
+		result = db.ORM.Model(&models.User{}).Where("id = ?", user.ID).Updates(models.User{LastLoggedIn: time.Now(), AvatarUrl: steamUser.AvatarFull, DisplayName: steamUser.PersonaName})
 		if result.Error != nil {
 			fmt.Println(result.Error)
+		}
+
+		friends, err := steam.GetFriendsList(user.ID)
+		if err != nil {
+			fmt.Println(err)
+		}
+		for i := 0; i < len(friends.Friendslist.Friends); i++ {
+			friendID := strconv.FormatUint(friends.Friendslist.Friends[i].SteamID, 10)
+			var friend models.User
+			result := db.ORM.First(&friend, friendID)
+			if result.Error != nil {
+				continue
+			}
+			err := db.ORM.Model(&user).Association("Friends").Append(&models.User{ID: friend.ID})
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		destination := "/"

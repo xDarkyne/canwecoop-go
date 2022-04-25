@@ -7,6 +7,7 @@ import (
 	"github.com/xdarkyne/steamgo/db/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var ORM *gorm.DB
@@ -18,7 +19,9 @@ func Connect() {
 		cfg *gorm.Config
 	)
 
-	cfg = &gorm.Config{}
+	cfg = &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	}
 
 	dsn = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
@@ -32,6 +35,7 @@ func Connect() {
 	)
 
 	ORM, err = gorm.Open(postgres.Open(dsn), cfg)
+	ORM.Session(&gorm.Session{FullSaveAssociations: true})
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -45,8 +49,10 @@ func Migrate() {
 	fmt.Println("Running migrations")
 
 	err := ORM.Migrator().AutoMigrate(
-		&models.Game{},
 		&models.Session{},
+		&models.Category{},
+		&models.Genre{},
+		&models.Game{},
 		&models.User{},
 	)
 
@@ -54,4 +60,6 @@ func Migrate() {
 		fmt.Println(err.Error())
 		panic(err)
 	}
+
+	fmt.Println("Completed migrations")
 }

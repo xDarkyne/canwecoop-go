@@ -40,6 +40,12 @@ const Home: NextPage = () => {
               >
                 Logout
               </button>
+              <button onClick={async() => {
+                await fetch('/api/games', {
+                  method: 'GET',
+                  credentials: 'include'
+                })
+              }}>Get Games</button>
             </>
           )}
         </>
