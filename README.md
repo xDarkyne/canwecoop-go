@@ -1,4 +1,4 @@
-# CanWeCoop
+# CanWe~~C~~Goop
 
 A recreation of my [CanWeCoop][canwecoop] backend in [Go][golang].
 
