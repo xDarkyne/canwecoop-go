@@ -18,3 +18,29 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - 3020:5432
+
+  cwc-application:
+    container_name: cwc-application
+    build:
+      context: ./src
+      dockerfile: ./.Dockerfile
+    image: steam-application
+    environment:
+      - APP_PORT=${APP_PORT}
+      - APP_TZ=${APP_TZ}
+      - APP_AUTH_COOKIE_NAME=${APP_AUTH_COOKIE_NAME}
+
+      - STEAM_API_KEY=${STEAM_API_KEY}
+
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+    restart: unless-stopped
+    networks:
+      - canwecoop
+    depends_on:
+      - cwc-database
+    ports:
+      - 3000:3000

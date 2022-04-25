@@ -53,9 +53,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(result.Error)
 		}
 
-		// Do whatever you want with steam id
 		expire := time.Now().AddDate(0, 0, 1)
-		cookie := &http.Cookie{Name: config.App.AuthCookieName, Value: steamUser.SteamId, Expires: expire, MaxAge: 86400, HttpOnly: true}
+		cookie := &http.Cookie{Name: config.App.AuthCookieName, Value: steamUser.SteamId, Expires: expire, MaxAge: 86400, HttpOnly: true, Path: "/"}
 		http.SetCookie(w, cookie)
 		http.Redirect(w, r, "/", 302)
 	}

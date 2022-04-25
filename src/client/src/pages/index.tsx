@@ -1,10 +1,14 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
-import styles from '../styles/Home.module.css';
+import { useQueryClient } from 'react-query';
+import { useUser } from 'hooks';
+import styles from 'styles/Home.module.scss';
 
 const Home: NextPage = () => {
+  const { user, isLoading } = useUser();
+  const queryClient = useQueryClient();
+
   return (
     <div className={styles.container}>
       <Head>
@@ -13,7 +17,33 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Link href={'/api/login'}>Login</Link>
+      {isLoading ? (
+        <></>
+      ) : (
+        <>
+          {!user ? (
+            <>
+              <Link href={'/api/login'}>Login</Link>
+            </>
+          ) : (
+            <>
+              <h2>Hello {user.DisplayName}</h2>
+
+              <button
+                onClick={async () => {
+                  await fetch('/api/auth', {
+                    method: 'DELETE',
+                    credentials: 'include',
+                  });
+                  queryClient.invalidateQueries('user');
+                }}
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </>
+      )}
 
       <main className={styles.main}>
         <h1 className={styles.title}>
@@ -62,10 +92,7 @@ const Home: NextPage = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
+          Powered by Calyx
         </a>
       </footer>
     </div>
