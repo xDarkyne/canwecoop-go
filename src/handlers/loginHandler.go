@@ -20,6 +20,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		/* Set the origin cookie here if the
+		 * Referer header is set. The cookie
+		 * is used to redirect the user to
+		 * the page he came from
+		 */
+		ref := r.Referer()
+		if ref != "" {
+			http.SetCookie(w, &http.Cookie{
+				Name:  "cwc-origin",
+				Value: ref,
+				Path:  "/",
+			})
+		}
 		login(w, r)
 	case http.MethodOptions:
 		OptionMethod(w, "GET, OPTIONS")
@@ -36,6 +49,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 	case "cancel":
 		w.Write([]byte("Authorization cancelled"))
 	default:
+
+		/* THIS CODE IS ONLY REACHED ON SUCCESSFULL AUTHENTICATION */
 		steamUser, err := opId.ValidateAndGetUser(config.App.SteamAPIKey)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -60,9 +75,21 @@ func login(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(result.Error)
 		}
 
+		destination := "/"
+		c, _ := r.Cookie("cwc-origin")
+		if c != nil {
+			destination = c.Value
+			// remove the origin cookie
+			http.SetCookie(w, &http.Cookie{
+				Name:   "cwc-origin",
+				Path:   "/",
+				MaxAge: -1,
+			})
+		}
+
 		expire := time.Now().AddDate(0, 0, 1)
 		cookie := &http.Cookie{Name: config.App.AuthCookieName, Value: steamUser.SteamId, Expires: expire, MaxAge: 86400, HttpOnly: true, Path: "/"}
 		http.SetCookie(w, cookie)
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		http.Redirect(w, r, destination, http.StatusMovedPermanently)
 	}
 }
