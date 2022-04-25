@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -26,16 +25,6 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("/api/login", handlers.LoginHandler)
-	router.HandleFunc("/api/logout", func(w http.ResponseWriter, r *http.Request) {
-			_, err := r.Cookie(config.App.AuthCookieName)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-		
-			http.SetCookie(w, &http.Cookie{Name: config.App.AuthCookieName, MaxAge: -1})
-			json.NewEncoder(w).Encode("eerr")
-	})
 	router.HandleFunc("/api/auth", handlers.AuthHandler)
 	router.HandleFunc("/api/games", handlers.GamesHandler)
 	router.Handle("/", handlers.FileHandler("public/"))

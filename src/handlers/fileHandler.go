@@ -30,7 +30,7 @@ func fileHandler(fs http.FileSystem) http.Handler {
 func notFound(w http.ResponseWriter, r *http.Request) {
 	f, err := ioutil.ReadFile("public/404.html")
 
-	if (err != nil) {
+	if err != nil {
 		println(err)
 	}
 
@@ -41,10 +41,10 @@ func (d HTMLDir) Open(name string) (http.File, error) {
 	// Try name with added extension
 	f, err := d.d.Open(name + ".html")
 	if os.IsNotExist(err) {
-			// Not found, try again with name as supplied.
-			if f, err := d.d.Open(name); err == nil {
-					return f, nil
-			}
+		// Not found, try again with name as supplied.
+		if f, err := d.d.Open(name); err == nil {
+			return f, nil
+		}
 	}
 	return f, err
 }

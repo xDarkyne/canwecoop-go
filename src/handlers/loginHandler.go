@@ -14,7 +14,7 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie(config.App.AuthCookieName)
 	if cookie != nil {
-		http.Redirect(w, r, "/", 302)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 		return
 	}
 
@@ -25,7 +25,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	opId := steam_go.NewOpenId(r)
 	switch opId.Mode() {
 	case "":
-		http.Redirect(w, r, opId.AuthUrl(), 301)
+		http.Redirect(w, r, opId.AuthUrl(), http.StatusMovedPermanently)
 	case "cancel":
 		w.Write([]byte("Authorization cancelled"))
 	default:
@@ -38,12 +38,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 		result := db.ORM.First(&user, steamUser.SteamId)
 		if result.Error != nil {
 			user = models.User{
-				ID: steamUser.SteamId,
-				DisplayName: steamUser.PersonaName,
-				AvatarUrl: steamUser.AvatarFull,
-				IsTester: false,
-				IsAdmin: false,
-				CreatedAt: time.Now(),
+				ID:           steamUser.SteamId,
+				DisplayName:  steamUser.PersonaName,
+				AvatarUrl:    steamUser.AvatarFull,
+				IsTester:     false,
+				IsAdmin:      false,
+				CreatedAt:    time.Now(),
 				LastLoggedIn: time.Now(),
 			}
 			db.ORM.Create(&user)
@@ -56,6 +56,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		expire := time.Now().AddDate(0, 0, 1)
 		cookie := &http.Cookie{Name: config.App.AuthCookieName, Value: steamUser.SteamId, Expires: expire, MaxAge: 86400, HttpOnly: true, Path: "/"}
 		http.SetCookie(w, cookie)
-		http.Redirect(w, r, "/", 302)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 }

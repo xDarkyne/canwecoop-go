@@ -21,16 +21,16 @@ func Connect() {
 	cfg = &gorm.Config{}
 
 	dsn = fmt.Sprintf(
-			"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s", 
-			config.App.DB.Host,
-			config.App.DB.Username,
-			config.App.DB.Password,
-			config.App.DB.DBName,
-			config.App.DB.Port,
-			config.App.DB.SSLMode,
-			config.App.TimeZone,
-		)
-	
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
+		config.App.DB.Host,
+		config.App.DB.Username,
+		config.App.DB.Password,
+		config.App.DB.DBName,
+		config.App.DB.Port,
+		config.App.DB.SSLMode,
+		config.App.TimeZone,
+	)
+
 	ORM, err = gorm.Open(postgres.Open(dsn), cfg)
 
 	if err != nil {
