@@ -9,14 +9,10 @@ import (
 )
 
 type HTMLDir struct {
-	d http.Dir
+	D http.Dir
 }
 
-func FileHandler(dir string) http.Handler {
-	return fileHandler(HTMLDir{http.Dir(dir)})
-}
-
-func fileHandler(fs http.FileSystem) http.Handler {
+func FileHandler(fs http.FileSystem) http.Handler {
 	fsh := http.FileServer(fs)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := fs.Open(path.Clean(r.URL.Path))
@@ -28,6 +24,18 @@ func fileHandler(fs http.FileSystem) http.Handler {
 	})
 }
 
+func (d HTMLDir) Open(name string) (http.File, error) {
+	// Try name with added extension
+	f, err := d.D.Open(name + ".html")
+	if os.IsNotExist(err) {
+		// Not found, try again with name as supplied.
+		if f, err := d.D.Open(name); err == nil {
+			return f, nil
+		}
+	}
+	return f, err
+}
+
 func notFound(w http.ResponseWriter, r *http.Request) {
 	f, err := ioutil.ReadFile("public/404.html")
 
@@ -37,16 +45,4 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(f))
-}
-
-func (d HTMLDir) Open(name string) (http.File, error) {
-	// Try name with added extension
-	f, err := d.d.Open(name + ".html")
-	if os.IsNotExist(err) {
-		// Not found, try again with name as supplied.
-		if f, err := d.d.Open(name); err == nil {
-			return f, nil
-		}
-	}
-	return f, err
 }

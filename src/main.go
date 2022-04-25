@@ -27,7 +27,7 @@ func main() {
 	router.HandleFunc("/api/login", handlers.LoginHandler)
 	router.HandleFunc("/api/auth", handlers.AuthHandler)
 	router.HandleFunc("/api/games", handlers.GamesHandler)
-	router.Handle("/", handlers.FileHandler("public/"))
+	router.Handle("/", handlers.FileHandler(handlers.HTMLDir{D: http.Dir("public/")}))
 
 	addr := fmt.Sprintf(":%d", config.App.Port)
 	log.Fatal(http.ListenAndServe(addr, router))

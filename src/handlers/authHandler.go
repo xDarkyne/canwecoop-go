@@ -29,8 +29,7 @@ func getAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Println(err)
-		resErr := ResponseError{Error: true}
-		json.NewEncoder(w).Encode(resErr)
+		http.Error(w, "User is not authenticated", http.StatusUnauthorized)
 		return
 	}
 
@@ -44,7 +43,7 @@ func getAuthHandler(w http.ResponseWriter, r *http.Request) {
 func deleteAuthHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(config.App.AuthCookieName)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "User is not authenticated", http.StatusUnauthorized)
 		return
 	}
 

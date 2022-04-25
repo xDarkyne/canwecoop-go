@@ -25,3 +25,7 @@ type Genre struct {
 	Name      string
 	Relevance int
 }
+
+type BadGame struct {
+	ID string `gorm:"primaryKey"`
+}
