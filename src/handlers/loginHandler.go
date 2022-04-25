@@ -18,7 +18,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	login(w, r)
+	switch r.Method {
+	case http.MethodGet:
+		login(w, r)
+	case http.MethodOptions:
+		OptionMethod(w, "GET, OPTIONS")
+	default:
+		MethodNotAllowedError(w, "GET, OPTIONS")
+	}
 }
 
 func login(w http.ResponseWriter, r *http.Request) {

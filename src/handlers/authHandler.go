@@ -14,12 +14,12 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		getAuthHandler(w, r)
-	case http.MethodPost:
-		fmt.Println("Post")
 	case http.MethodDelete:
 		deleteAuthHandler(w, r)
-	case http.MethodPut:
-		fmt.Println("Put")
+	case http.MethodOptions:
+		OptionMethod(w, "GET, DELETE, OPTIONS")
+	default:
+		MethodNotAllowedError(w, "GET, DELETE, OPTIONS")
 	}
 }
 
@@ -27,6 +27,7 @@ type RError struct {
 	Error bool
 }
 
+// METHOD: GET
 func getAuthHandler(w http.ResponseWriter, r *http.Request) {
 	authCookie, err := r.Cookie(config.App.AuthCookieName)
 	w.Header().Set("Content-Type", "application/json")
@@ -43,6 +44,7 @@ func getAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// METHOD: DELETE
 func deleteAuthHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(config.App.AuthCookieName)
 	if err != nil {

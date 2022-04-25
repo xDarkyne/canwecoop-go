@@ -19,5 +19,5 @@ func GamesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getGamesHandler(w http.ResponseWriter, r *http.Request) {
-
+	http.Error(w, "Not Implemented", http.StatusInternalServerError)
 }
