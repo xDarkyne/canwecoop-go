@@ -4,7 +4,7 @@ A recreation of my [CanWeCoop][canwecoop] backend in [Go][golang].
 
 ## Description
 
-This repository is a recreation of my [CanWeCoop][canwecoop] backend in [Go][golang]. The original backend is written with [TypeScript][typescript] using [Next.js][nextjs] [api routes][nextapi] with the help of [Next Connect][nextconnect] and [TRPC][trpc]. The goal is to recreate the backend 1:1 in order to get a better understanding in [Go][golang].
+This repository is a recreation of my [CanWeCoop][canwecoop] backend in [Go][golang]. The original backend is written with [TypeScript][typescript] using [Next.js][nextjs] [api routes][nextapi] with the help of [Next Connect][nextconnect] and [TRPC][trpc]. The goal is to recreate the backend 1:1 in order to get a better understanding of [Go][golang].
 
 ## Features
 
