@@ -23,18 +23,14 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type RError struct {
-	Error bool
-}
-
 // METHOD: GET
 func getAuthHandler(w http.ResponseWriter, r *http.Request) {
 	authCookie, err := r.Cookie(config.App.AuthCookieName)
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Println(err)
-		rerror := RError{Error: true}
-		json.NewEncoder(w).Encode(rerror)
+		resErr := ResponseError{Error: true}
+		json.NewEncoder(w).Encode(resErr)
 		return
 	}
 
@@ -53,5 +49,5 @@ func deleteAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{Name: config.App.AuthCookieName, MaxAge: -1, Path: "/"})
-	json.NewEncoder(w).Encode(RError{Error: false})
+	json.NewEncoder(w).Encode(ResponseError{Error: false})
 }
