@@ -37,6 +37,8 @@ func Connect() {
 		fmt.Println(err.Error())
 		panic(err)
 	}
+
+	fmt.Println("Connected to database successfully")
 }
 
 func Migrate() {

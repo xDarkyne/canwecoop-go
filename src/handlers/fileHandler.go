@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -31,7 +32,8 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	f, err := ioutil.ReadFile("public/404.html")
 
 	if err != nil {
-		println(err)
+		fmt.Println(err)
+		http.NotFound(w, r)
 	}
 
 	w.Write([]byte(f))

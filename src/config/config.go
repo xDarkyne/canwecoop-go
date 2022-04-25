@@ -30,7 +30,7 @@ func LoadConfig() {
 	var err error
 
 	// load env file in development
-	err = godotenv.Load("../.env.dev")
+	err = godotenv.Load("../.env.local")
 
 	if err != nil {
 		fmt.Println(err)
