@@ -13,37 +13,38 @@ import (
 	"github.com/xdarkyne/steamgo/steam"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginHandler() http.Handler {
+	r := NewDarkRouter()
+
+	r.Get("/", getLoginHandler)
+	r.OptionsHandler("GET")
+	r.MethodNotAllowedHandler("GET")
+
+	return r
+}
+
+// METHOD: GET
+func getLoginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie(config.App.AuthCookieName)
 	if cookie != nil {
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 		return
 	}
 
-	switch r.Method {
-	case http.MethodGet:
-		/* Set the origin cookie here if the
-		 * Referer header is set. The cookie
-		 * is used to redirect the user to
-		 * the page he came from
-		 */
-		ref := r.Referer()
-		if ref != "" {
-			http.SetCookie(w, &http.Cookie{
-				Name:  "cwc-origin",
-				Value: ref,
-				Path:  "/",
-			})
-		}
-		login(w, r)
-	case http.MethodOptions:
-		OptionMethod(w, "GET, OPTIONS")
-	default:
-		MethodNotAllowedError(w, "GET, OPTIONS")
+	/* Set the origin cookie here if the
+	 * Referer header is set. The cookie
+	 * is used to redirect the user to
+	 * the page he came from
+	 */
+	ref := r.Referer()
+	if ref != "" {
+		http.SetCookie(w, &http.Cookie{
+			Name:  "cwc-origin",
+			Value: ref,
+			Path:  "/",
+		})
 	}
-}
 
-func login(w http.ResponseWriter, r *http.Request) {
 	opId := steam_go.NewOpenId(r)
 	switch opId.Mode() {
 	case "":
@@ -75,11 +76,22 @@ func login(w http.ResponseWriter, r *http.Request) {
 			}
 			db.ORM.Create(&user)
 		}
-		result = db.ORM.Model(&models.User{}).Where("id = ?", user.ID).Updates(models.User{LastLoggedIn: time.Now(), AvatarUrl: steamUser.AvatarFull, DisplayName: steamUser.PersonaName})
+
+		// update Username/Avatar in the case they changed
+		if steamUser.AvatarFull != user.AvatarUrl || steamUser.PersonaName != user.DisplayName {
+			result = db.ORM.Model(&user).Updates(models.User{AvatarUrl: steamUser.AvatarFull, DisplayName: steamUser.PersonaName})
+			if result.Error != nil {
+				fmt.Println(result.Error)
+			}
+		}
+
+		// update last login date-time
+		result = db.ORM.Model(&user).Updates(models.User{LastLoggedIn: time.Now()})
 		if result.Error != nil {
 			fmt.Println(result.Error)
 		}
 
+		// update friendslist
 		friends, err := steam.GetFriendsList(user.ID)
 		if err != nil {
 			fmt.Println(err)

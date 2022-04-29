@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/xdarkyne/steamgo/config"
 	"github.com/xdarkyne/steamgo/db"
 	"github.com/xdarkyne/steamgo/handlers"
@@ -22,11 +23,13 @@ func main() {
 		db.Migrate()
 	}
 
-	router := http.NewServeMux()
+	router := chi.NewRouter()
 
-	router.HandleFunc("/api/login", handlers.LoginHandler)
-	router.HandleFunc("/api/auth", handlers.AuthHandler)
-	router.HandleFunc("/api/games", handlers.GamesHandler)
+	router.Route("/api", func(r chi.Router) {
+		r.Mount("/login", handlers.LoginHandler())
+		r.Mount("/auth", handlers.AuthHandler())
+		r.Mount("/games", handlers.GamesHandler())
+	})
 	router.Handle("/", handlers.FileHandler(handlers.HTMLDir{D: http.Dir("public/")}))
 
 	addr := fmt.Sprintf(":%d", config.App.Port)

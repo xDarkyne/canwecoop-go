@@ -10,17 +10,15 @@ import (
 	"github.com/xdarkyne/steamgo/db/models"
 )
 
-func AuthHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getAuthHandler(w, r)
-	case http.MethodDelete:
-		deleteAuthHandler(w, r)
-	case http.MethodOptions:
-		OptionMethod(w, "GET, DELETE, OPTIONS")
-	default:
-		MethodNotAllowedError(w, "GET, DELETE, OPTIONS")
-	}
+func AuthHandler() http.Handler {
+	r := NewDarkRouter()
+
+	r.Get("/", getAuthHandler)
+	r.Delete("/", deleteAuthHandler)
+	r.OptionsHandler("GET, DELETE")
+	r.MethodNotAllowedHandler("GET, DELETE")
+
+	return r
 }
 
 // METHOD: GET
@@ -48,5 +46,5 @@ func deleteAuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{Name: config.App.AuthCookieName, MaxAge: -1, Path: "/"})
-	json.NewEncoder(w).Encode(ResponseError{Error: false})
+	w.Write([]byte("Logged out successfully!"))
 }

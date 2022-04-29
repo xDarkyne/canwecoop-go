@@ -4,6 +4,9 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
+	github.com/dghubble/sling v1.4.0 // indirect
+	github.com/go-chi/chi/v5 v5.0.7 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.2.6 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.0 // indirect
@@ -16,6 +19,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
+	github.com/peppage/kettle v2.3.0+incompatible // indirect
 	github.com/solovev/steam_go v0.0.0-20170222182106-48eb5aae6c50 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/text v0.3.7 // indirect

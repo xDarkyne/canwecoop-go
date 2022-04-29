@@ -5,6 +5,7 @@ export interface User {
   ProfileUrl: string;
   IsTester: boolean;
   IsAdmin: boolean;
+  Friends: [];
   CreatedAt: string;
   LastLoggedIn: string;
 }

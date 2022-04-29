@@ -8,6 +8,10 @@ import (
 	"github.com/xdarkyne/steamgo/config"
 )
 
+/*
+ * THIS FILE IS UNUSED CURRENTLY AND MIGHT BE REMOVED LATER
+ */
+
 type Game struct {
 	ID              int `json:"appid"`
 	PlaytimeTotal   int `json:"playtime_forever"`
@@ -37,4 +41,19 @@ func GetSteamGames(userID string) (playerGamesListJSON, error) {
 		return gamesList, err
 	}
 	return gamesList, nil
+}
+
+type AppData struct {
+}
+
+func GetSteamGameDetails(gameID string) AppData {
+	url := fmt.Sprintf("http://store.steampowered.com/api/appdetails?appids=%s", gameID)
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+	var GameDetails AppData
+	json.NewDecoder(resp.Body).Decode(&GameDetails)
+	return GameDetails
 }
