@@ -22,6 +22,14 @@ func GamesHandler() http.Handler {
 	return r
 }
 
+func GetNextCursor(c paginator.Cursor) *string {
+	if c.After != nil {
+		return nil
+	}
+
+	return c.After
+}
+
 // METHOD: GET
 func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	cursorParam := r.URL.Query().Get("cursor")
@@ -52,21 +60,15 @@ func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		panic(result.Error.Error())
 	}
 
-	type response struct {
+	response := struct {
 		Games      []models.Game
 		NextCursor *string
-	}
-
-	aRes := response{
+	}{
 		Games:      allGames,
-		NextCursor: nil,
+		NextCursor: GetNextCursor(cursor),
 	}
 
-	if cursor.After != nil {
-		aRes.NextCursor = cursor.After
-	}
-
-	json.NewEncoder(w).Encode(aRes)
+	json.NewEncoder(w).Encode(response)
 }
 
 // METHOD: POST
