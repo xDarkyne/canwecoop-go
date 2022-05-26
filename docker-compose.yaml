@@ -23,7 +23,7 @@ services:
     container_name: cwc-application
     build:
       context: ./src
-      dockerfile: ./.Dockerfile
+      dockerfile: ./Dockerfile
     image: steam-application
     environment:
       - APP_PORT=${APP_PORT}
