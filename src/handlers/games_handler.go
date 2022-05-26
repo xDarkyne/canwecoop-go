@@ -24,7 +24,7 @@ func GamesHandler() http.Handler {
 
 // METHOD: GET
 func getGamesHandler(w http.ResponseWriter, r *http.Request) {
-	cursor := r.URL.Query().Get("cursor")
+	cursorParam := r.URL.Query().Get("cursor")
 	limit := 24
 
 	var allGames []models.Game
@@ -37,11 +37,11 @@ func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		Limit: limit,
 	})
 
-	if len(cursor) != 0 {
-		p.SetAfterCursor(cursor)
+	if len(cursorParam) != 0 {
+		p.SetAfterCursor(cursorParam)
 	}
 
-	result, pCursor, err := p.Paginate(stmt, &allGames)
+	result, cursor, err := p.Paginate(stmt, &allGames)
 	// paginator error
 	if err != nil {
 		panic(err.Error())
@@ -54,18 +54,16 @@ func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 
 	type response struct {
 		Games      []models.Game
-		NextCursor string
+		NextCursor *string
 	}
 
 	aRes := response{
 		Games:      allGames,
-		NextCursor: "",
+		NextCursor: nil,
 	}
 
-	fmt.Println(*pCursor.After)
-
-	if len(*pCursor.After) != 0 {
-		aRes.NextCursor = *pCursor.After
+	if cursor.After != nil {
+		aRes.NextCursor = cursor.After
 	}
 
 	json.NewEncoder(w).Encode(aRes)
