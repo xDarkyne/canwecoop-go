@@ -2,10 +2,8 @@ package sync
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/peppage/kettle"
 	"github.com/xdarkyne/steamgo/config"
 	"github.com/xdarkyne/steamgo/db"
 	"github.com/xdarkyne/steamgo/db/models"
@@ -17,9 +15,6 @@ import (
  */
 
 func SyncGames() {
-	httpClient := http.DefaultClient
-	steamClient := kettle.NewClient(httpClient, config.App.SteamAPIKey)
-
 	var users []models.User
 	result := db.ORM.Find(&users)
 	if result.Error != nil {
@@ -27,16 +22,16 @@ func SyncGames() {
 		return
 	}
 
-	list := map[int64]int64{}
+	list := map[string]string{}
 
 	for _, v := range users {
-		games, _, err := steamClient.IPlayerService.GetOwnedGames(&kettle.OwnedGamesParams{SteamID: v.ID, IncludeAppInfo: 0, IncludeFree: 1})
+		games, err := config.App.SteamAPI.GetOwnedGames(v.ID)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		for _, v2 := range games {
-			gameID := v2.AppID
+			gameID := string(v2.GameID)
 			if _, ok := list[gameID]; !ok {
 				list[gameID] = gameID
 			}
@@ -46,20 +41,20 @@ func SyncGames() {
 	count := 0
 	for _, g := range list {
 		count++
-		details, _, err := steamClient.Store.AppDetails(g)
+		details, err := config.App.SteamAPI.GetGameDetails(g)
 		if err != nil {
 			fmt.Println(err)
 		}
-		id := fmt.Sprint(details.SteamAppID)
+		id := string(details.Id)
 		result := db.ORM.Create(&models.Game{
 			ID:                 fmt.Sprint(id),
 			Name:               details.Name,
 			IsFree:             details.IsFree,
 			ShortDescription:   details.ShortDescription,
-			HeaderImageUrl:     details.HeaderImage,
+			HeaderImageUrl:     details.HeaderImageUrl,
 			Website:            details.Website,
-			BackgroundImageUrl: details.Background,
-			StoreUrl:           fmt.Sprintf("https://store.steampowered.com/app/%d", details.SteamAppID),
+			BackgroundImageUrl: details.BackgroundImageUrl,
+			StoreUrl:           fmt.Sprintf("https://store.steampowered.com/app/%s", id),
 			IsHidden:           false,
 		})
 		if result.Error != nil {
@@ -70,10 +65,10 @@ func SyncGames() {
 		db.ORM.First(&game, "id = ?", id)
 
 		for _, c := range details.Categories {
-			id := fmt.Sprint(c.ID)
+			id := fmt.Sprint(c.Id)
 			err := db.ORM.Model(&game).Association("Categories").Append(&models.Category{
 				ID:        id,
-				Name:      c.Description,
+				Name:      c.Name,
 				Relevance: 0,
 			})
 			if err != nil {
@@ -83,10 +78,10 @@ func SyncGames() {
 		}
 
 		for _, g := range details.Genres {
-			id := fmt.Sprintf(g.ID)
+			id := fmt.Sprint(g.Id)
 			err := db.ORM.Model(&game).Association("Genres").Append(&models.Genre{
 				ID:        id,
-				Name:      g.Description,
+				Name:      g.Name,
 				Relevance: 0,
 			})
 			if err != nil {

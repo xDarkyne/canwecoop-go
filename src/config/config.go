@@ -5,6 +5,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
+	gosteam "github.com/xdarkyne/go-steam"
 )
 
 type AppConfig struct {
@@ -13,6 +14,7 @@ type AppConfig struct {
 	TimeZone       string `env:"APP_TZ" env-default:"Europe/Berlin"`
 	AuthCookieName string `env:"APP_AUTH_COOKIE_NAME" env-default:"cwc-auth"`
 	SteamAPIKey    string `env:"STEAM_API_KEY" env-default:""`
+	SteamAPI       gosteam.SteamApi
 }
 
 type DatabaseConfig struct {
@@ -42,4 +44,6 @@ func LoadConfig() {
 		fmt.Println(err)
 		panic(err)
 	}
+
+	App.SteamAPI = gosteam.NewSteamApi(App.SteamAPIKey)
 }

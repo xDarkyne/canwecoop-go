@@ -3,14 +3,18 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useQueryClient } from 'react-query';
 import { useUser, useGames } from 'hooks';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 const Home: NextPage = () => {
+  const router = useRouter();
+  const cursor = String(router.query['cursor'] ?? "")
   const { user, isLoading } = useUser();
-  const { games } = useGames(); 
+  const { data, hasNextPage, fetchNextPage } = useGames(); 
 
+  console.log(hasNextPage)
+  
   const queryClient = useQueryClient();
-
-  console.log(games)
 
   return (
     <>
@@ -51,13 +55,16 @@ const Home: NextPage = () => {
         
       <div className="container">
         <ul className='grid'>
-          {games?.map((game) => 
+          {data?.pages.map((page) => page.Games?.map((game: any) => 
             <li key={game.ID}>
               <img src={game.HeaderImageUrl} alt={game.Name} />
               <h2><a href={game.StoreUrl}>{game.Name}</a></h2>
-            </li>
-          )}
+            </li>))}
         </ul>
+        {hasNextPage ? <>
+          <button onClick={() => fetchNextPage()}>Load More</button>
+        </> : <></>
+        }
       </div>
     </>
   );

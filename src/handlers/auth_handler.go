@@ -8,15 +8,14 @@ import (
 	"github.com/xdarkyne/steamgo/config"
 	"github.com/xdarkyne/steamgo/db"
 	"github.com/xdarkyne/steamgo/db/models"
+	"github.com/xdarkyne/steamgo/router"
 )
 
 func AuthHandler() http.Handler {
-	r := NewDarkRouter()
+	r := router.NewRouter()
 
 	r.Get("/", getAuthHandler)
 	r.Delete("/", deleteAuthHandler)
-	r.OptionsHandler("GET, DELETE")
-	r.MethodNotAllowedHandler("GET, DELETE")
 
 	return r
 }

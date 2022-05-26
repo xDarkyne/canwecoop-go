@@ -3,22 +3,19 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/solovev/steam_go"
 	"github.com/xdarkyne/steamgo/config"
 	"github.com/xdarkyne/steamgo/db"
 	"github.com/xdarkyne/steamgo/db/models"
-	"github.com/xdarkyne/steamgo/steam"
+	"github.com/xdarkyne/steamgo/router"
 )
 
 func LoginHandler() http.Handler {
-	r := NewDarkRouter()
+	r := router.NewRouter()
 
 	r.Get("/", getLoginHandler)
-	r.OptionsHandler("GET")
-	r.MethodNotAllowedHandler("GET")
 
 	return r
 }
@@ -92,14 +89,13 @@ func getLoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// update friendslist
-		friends, err := steam.GetFriendsList(user.ID)
+		friends, err := config.App.SteamAPI.GetFriendsList(steamUser.SteamId)
 		if err != nil {
 			fmt.Println(err)
 		}
-		for i := 0; i < len(friends.Friendslist.Friends); i++ {
-			friendID := strconv.FormatUint(friends.Friendslist.Friends[i].SteamID, 10)
+		for i := 0; i < len(friends); i++ {
 			var friend models.User
-			result := db.ORM.First(&friend, friendID)
+			result := db.ORM.First(&friend, friends[i].UserID)
 			if result.Error != nil {
 				continue
 			}

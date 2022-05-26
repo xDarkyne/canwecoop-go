@@ -8,7 +8,7 @@ type User struct {
 	AvatarUrl    string
 	ProfileUrl   string
 	Friends      []*User `gorm:"many2many:user_user"`
-	Games        []Game  `gorm:"many2many:user_game"`
+	Games        []Game  `gorm:"many2many:game_user"`
 	IsTester     bool
 	IsAdmin      bool
 	CreatedAt    time.Time

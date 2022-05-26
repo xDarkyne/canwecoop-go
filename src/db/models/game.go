@@ -9,6 +9,7 @@ type Game struct {
 	Website            string
 	Categories         []Category `gorm:"many2many:game_category"`
 	Genres             []Genre    `gorm:"many2many:game_genre"`
+	OwnedBy            []User     `gorm:"many2many:game_user"`
 	BackgroundImageUrl string
 	StoreUrl           string
 	IsHidden           bool
