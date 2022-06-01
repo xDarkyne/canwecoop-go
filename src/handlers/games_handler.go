@@ -23,7 +23,7 @@ func GamesHandler() http.Handler {
 }
 
 func GetNextCursor(c paginator.Cursor) *string {
-	if c.After != nil {
+	if c.After == nil {
 		return nil
 	}
 
@@ -33,6 +33,7 @@ func GetNextCursor(c paginator.Cursor) *string {
 // METHOD: GET
 func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	cursorParam := r.URL.Query().Get("cursor")
+	nameParam := r.URL.Query().Get("name")
 	limit := 24
 
 	var allGames []models.Game
@@ -40,6 +41,11 @@ func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	stmt := db.ORM.
 		Preload("Categories").
 		Preload("Genres")
+
+	if len(nameParam) != 0 {
+		query := "%" + nameParam + "%"
+		stmt.Where("Lower(Name) LIKE Lower(?)", query)
+	}
 
 	p := paginator.New(&paginator.Config{
 		Limit: limit,
@@ -59,6 +65,8 @@ func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	if result.Error != nil {
 		panic(result.Error.Error())
 	}
+
+	fmt.Println(GetNextCursor(cursor))
 
 	response := struct {
 		Games      []models.Game

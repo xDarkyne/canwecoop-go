@@ -8,12 +8,12 @@ import { useState } from 'react';
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const cursor = String(router.query['cursor'] ?? "")
+  const [name, setName] = useState('');
   const { user, isLoading } = useUser();
-  const { data, hasNextPage, fetchNextPage } = useGames(); 
+  const { data, hasNextPage, fetchNextPage } = useGames({ nameParam: name });
 
-  console.log(hasNextPage)
-  
+  console.log(hasNextPage);
+
   const queryClient = useQueryClient();
 
   return (
@@ -52,19 +52,32 @@ const Home: NextPage = () => {
         </>
       )}
 
-        
       <div className="container">
-        <ul className='grid'>
-          {data?.pages.map((page) => page.Games?.map((game: any) => 
-            <li key={game.ID}>
-              <img src={game.HeaderImageUrl} alt={game.Name} />
-              <h2><a href={game.StoreUrl}>{game.Name}</a></h2>
-            </li>))}
+        <input
+          type="text"
+          onChange={({ target }) => {
+            setName(target.value);
+          }}
+        />
+        <ul className="grid">
+          {data?.pages.map((page) =>
+            page.Games?.map((game: any) => (
+              <li key={game.ID}>
+                <img src={game.HeaderImageUrl} alt={game.Name} />
+                <h2>
+                  <a href={game.StoreUrl}>{game.Name}</a>
+                </h2>
+              </li>
+            ))
+          )}
         </ul>
-        {hasNextPage ? <>
-          <button onClick={() => fetchNextPage()}>Load More</button>
-        </> : <></>
-        }
+        {hasNextPage ? (
+          <>
+            <button onClick={() => fetchNextPage()}>Load More</button>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );
